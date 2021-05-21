@@ -6,12 +6,13 @@ WIDTH = 256
 HEIGHT = 200
 
 
-class Shot:
+class Bullet:
     RADIUS = 2
     POWER = 270
 
     def __init__(self, position, orientation, space):
         self.orientation = orientation
+        self.tick = 0
 
         body = Body(body_type=Body.DYNAMIC)
         shape = Circle(body, self.RADIUS)
@@ -33,6 +34,10 @@ class Shot:
         impulse = Vec2d(-self.orientation, 0) * self.POWER
 
         body.apply_impulse_at_world_point(impulse, body.position)
+
+    def update(self):
+        print(self.tick)
+        self.tick += 1
 
     def draw(self, shift):
         body = self.body
@@ -64,7 +69,7 @@ class Player:
         self.body = ball
         self.shape = ball_shape
 
-        self.shots = []
+        self.bullets = []
 
     def enter_space(self, space):
         space.add(self.body, self.shape)
@@ -96,8 +101,8 @@ class Player:
 
     def shoot(self):
         if pyxel.btn(pyxel.KEY_SPACE):
-            self.shots.append(
-                Shot(self.body.position, self.orientation, self.space)
+            self.bullets.append(
+                Bullet(self.body.position, self.orientation, self.space)
             )
 
     def update(self, camera_pos):
@@ -143,8 +148,8 @@ class Player:
             transparent_color
         )
 
-        for shot in self.shots:
-            shot.draw(shift)
+        for bullet in self.bullets:
+            bullet.draw(shift)
         
 
 class Game:
