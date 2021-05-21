@@ -6,6 +6,47 @@ WIDTH = 256
 HEIGHT = 200
 
 
+class Shot:
+    RADIUS = 2
+    POWER = 270
+
+    def __init__(self, position, orientation, space):
+        self.orientation = orientation
+
+        body = Body(body_type=Body.DYNAMIC)
+        shape = Circle(body, self.RADIUS)
+
+        shape.friction = 0.5
+        shape.density = 0.1
+
+        body.position = position
+
+        space.add(body, shape)
+
+        self.body = body
+        self.shape = shape
+
+        self.apply_impulse()
+
+    def apply_impulse(self):
+        body = self.body
+        impulse = Vec2d(-self.orientation, 0) * self.POWER
+
+        body.apply_impulse_at_world_point(impulse, body.position)
+
+    def draw(self, shift):
+        body = self.body
+        shape = self.shape
+
+        pos = body.position - shift
+
+        pyxel.circ(
+            *pos,
+            shape.radius,
+            pyxel.COLOR_GREEN
+        )
+
+
 class Player:
     BALL_RADIUS = 8
     SPEED = 50
@@ -23,14 +64,17 @@ class Player:
         self.body = ball
         self.shape = ball_shape
 
+        self.shots = []
+
     def enter_space(self, space):
         space.add(self.body, self.shape)
+        self.space = space
 
     @property
     def position(self):
         return self.body.position
 
-    def update(self, camera_pos):
+    def move(self, camera_pos):
         ball = self.body
         vx, vy = ball.velocity
         px, py = ball.position
@@ -49,6 +93,16 @@ class Player:
 
         if vy == 0.0 and pyxel.btn(pyxel.KEY_UP):
             ball.velocity = (vx, -self.SPEED)
+
+    def shoot(self):
+        if pyxel.btn(pyxel.KEY_SPACE):
+            self.shots.append(
+                Shot(self.body.position, self.orientation, self.space)
+            )
+
+    def update(self, camera_pos):
+        self.move(camera_pos)
+        self.shoot()
 
     def draw(self, shift):
         ball = self.body
@@ -88,6 +142,9 @@ class Player:
             image_heigth,
             transparent_color
         )
+
+        for shot in self.shots:
+            shot.draw(shift)
         
 
 class Game:
