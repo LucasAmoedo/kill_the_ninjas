@@ -7,15 +7,19 @@ class Game:
     HEIGHT = 200
     FPS = 30
     GRAVITY = Vec2d(0, 50)
-    BALL_RADIUS = 10
+    BALL_RADIUS = 8
     GROUND_RADIUS = 3
     PLAYER_SPEED = 50
     SCREEN = Vec2d(WIDTH, HEIGHT)
+    PLAYER_ORIENTATION_LEFT = 1
+    PLAYER_ORIENTATION_RIGHT = -1
+    PLAYER_IMAGE_SIZE = BALL_RADIUS * 2
 
     def __init__(self):
         self.space = Space()
         self.space.gravity = self.GRAVITY
         self.camera_pos = Vec2d(0, 0)
+        self.player_orientation = self.PLAYER_ORIENTATION_RIGHT
 
         x, y = self.WIDTH, self.HEIGHT
         # Create a ball
@@ -27,7 +31,7 @@ class Game:
 
         # Crate the ground
         ground = self.space.static_body
-        ground_shape = Segment(ground, (-x, y), (2*x, y), self.GROUND_RADIUS)
+        ground_shape = Segment(ground, (0, y), (x/2, y), self.GROUND_RADIUS)
         self.space.add(ground_shape)
 
         self.ground = ground
@@ -36,7 +40,6 @@ class Game:
         dt = 1 / self.FPS
 
         ball = self.player
-        print(ball.moment)
         vx, vy = ball.velocity
         px, py = ball.position
 
@@ -55,7 +58,8 @@ class Game:
         if vy == 0.0 and pyxel.btn(pyxel.KEY_UP):
             ball.velocity = (vx, -self.PLAYER_SPEED)
         
-        self.camera_pos = Vec2d(self.player.position[0], 20) - Vec2d(self.WIDTH / 2, 0)
+        pos = self.player.position
+        self.camera_pos = Vec2d(pos[0], 20) - Vec2d(self.WIDTH / 2, 0)
         self.space.step(dt)
 
     def draw(self):
@@ -64,10 +68,46 @@ class Game:
 
         # Desenha bola
         ball = self.player
-        pyxel.circ(
-            *self.player.position - shift,
-            self.BALL_RADIUS,
-            pyxel.COLOR_RED
+        ball_shape = list(ball.shapes)[0]
+
+        bb = ball_shape.bb
+
+        x, y, _, _ = bb
+
+        player_position = Vec2d(x, y) - shift
+
+        # pyxel.circ(
+        #     *self.player.position - shift,
+        #     self.BALL_RADIUS,
+        #     pyxel.COLOR_YELLOW
+        # )
+
+        if self.player.velocity.x > 0:
+            self.player_orientation = self.PLAYER_ORIENTATION_RIGHT
+        elif self.player.velocity.x < 0:
+            self.player_orientation = self.PLAYER_ORIENTATION_LEFT
+
+        image_page_index = 0
+        image_width = self.player_orientation * self.PLAYER_IMAGE_SIZE
+        image_heigth = self.PLAYER_IMAGE_SIZE
+        transparent_color = pyxel.COLOR_YELLOW
+
+        image_quantity = 4
+        animation_speed = 2
+        image_index = int(
+            self.player.position.x // animation_speed
+        ) % image_quantity
+
+        image_u = self.PLAYER_IMAGE_SIZE * image_index
+        image_position = (image_u, self.PLAYER_IMAGE_SIZE)
+
+        pyxel.blt(
+            *player_position,
+            image_page_index,
+            *image_position,
+            image_width,
+            image_heigth,
+            transparent_color
         )
 
         # Desenha o chão
@@ -81,6 +121,9 @@ class Game:
 
     def run(self):
         pyxel.init(self.WIDTH, self.HEIGHT, fps=self.FPS)
+
+        pyxel.load("assets.pyxres")
+
         pyxel.run(self.update, self.draw)
 
 
