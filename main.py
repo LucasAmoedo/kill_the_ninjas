@@ -7,13 +7,24 @@ HEIGHT = 200
 
 
 class Bullet:
+    def __init__(self, body, shape, tick):
+        self.body = body
+        self.shape = shape
+        self.tick = tick
+
+
+class BallGun:
     RADIUS = 2
     POWER = 270
+    BULLET_DURATION = 30
 
-    def __init__(self, position, orientation, space):
-        self.orientation = orientation
-        self.tick = 0
+    def __init__(self):
+        self.bullets = []
 
+    def enter_space(self, space):
+        self.space = space
+
+    def fire(self, position, orientation):
         body = Body(body_type=Body.DYNAMIC)
         shape = Circle(body, self.RADIUS)
 
@@ -22,34 +33,39 @@ class Bullet:
 
         body.position = position
 
-        space.add(body, shape)
+        self.space.add(body, shape)
 
-        self.body = body
-        self.shape = shape
+        self.bullets.append(
+            Bullet(body, shape, 0)
+        )
 
-        self.apply_impulse()
+        self.__apply_impulse(body, orientation)
 
-    def apply_impulse(self):
-        body = self.body
-        impulse = Vec2d(-self.orientation, 0) * self.POWER
+    def __apply_impulse(self, body, orientation):
+        impulse = Vec2d(-orientation, 0) * self.POWER
 
         body.apply_impulse_at_world_point(impulse, body.position)
 
     def update(self):
-        print(self.tick)
-        self.tick += 1
+        for bullet in self.bullets.copy():
+            bullet.tick += 1
+
+            if bullet.tick >= self.BULLET_DURATION:
+                self.space.remove(bullet.body, bullet.shape)
+                self.bullets.remove(bullet)
 
     def draw(self, shift):
-        body = self.body
-        shape = self.shape
+        for bullet in self.bullets:
+            body = bullet.body
+            shape = bullet.shape
 
-        pos = body.position - shift
+            pos = body.position - shift
 
-        pyxel.circ(
-            *pos,
-            shape.radius,
-            pyxel.COLOR_GREEN
-        )
+            pyxel.circ(
+                *pos,
+                shape.radius,
+                pyxel.COLOR_RED
+            )
 
 
 class Player:
@@ -69,11 +85,13 @@ class Player:
         self.body = ball
         self.shape = ball_shape
 
-        self.bullets = []
+        self.ball_gun = BallGun()
 
     def enter_space(self, space):
         space.add(self.body, self.shape)
         self.space = space
+
+        self.ball_gun.enter_space(space)
 
     @property
     def position(self):
@@ -100,10 +118,10 @@ class Player:
             ball.velocity = (vx, -self.SPEED)
 
     def shoot(self):
-        if pyxel.btn(pyxel.KEY_SPACE):
-            self.bullets.append(
-                Bullet(self.body.position, self.orientation, self.space)
-            )
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            self.ball_gun.fire(self.body.position, self.orientation)
+
+        self.ball_gun.update()
 
     def update(self, camera_pos):
         self.move(camera_pos)
@@ -148,8 +166,7 @@ class Player:
             transparent_color
         )
 
-        for bullet in self.bullets:
-            bullet.draw(shift)
+        self.ball_gun.draw(shift)
         
 
 class Game:
