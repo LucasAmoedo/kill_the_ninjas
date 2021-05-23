@@ -1,0 +1,49 @@
+import pyxel
+from pymunk import Space, Vec2d
+from constants import WIDTH, HEIGHT
+from layout_builder import LayoutBuilder
+from player import Player
+
+
+class Game:
+    FPS = 30
+    GRAVITY = Vec2d(0, 50)
+    GROUND_RADIUS = 3
+    SCREEN = Vec2d(WIDTH, HEIGHT)
+
+    def __init__(self):
+        self.space = Space()
+        self.space.gravity = self.GRAVITY
+        self.camera_pos = Vec2d(0, 0)
+
+        self.player = Player()
+        self.player.enter_space(self.space)
+
+        self.layout_builder = LayoutBuilder()
+        self.layout_builder.add_segments_to_space(self.space)
+
+    def update(self):
+        dt = 1 / self.FPS
+
+        self.player.update(self.camera_pos)
+
+        pos = self.player.position
+        self.camera_pos = Vec2d(pos[0], 20) - Vec2d(WIDTH / 2, 0)
+        self.space.step(dt)
+
+    def draw(self):
+        pyxel.cls(pyxel.COLOR_WHITE)
+
+        shift = self.camera_pos
+
+        self.player.draw(shift)
+        self.layout_builder.draw(shift)
+
+    def run(self):
+        pyxel.init(WIDTH, HEIGHT, fps=self.FPS)
+        pyxel.load("assets.pyxres")
+        pyxel.run(self.update, self.draw)
+
+
+game = Game()
+game.run()
