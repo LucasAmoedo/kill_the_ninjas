@@ -6,42 +6,89 @@ from pymunk.autogeometry import march_hard
 WIDTH = 256
 HEIGHT = 200
 
-img = [
-    "       ",
-    "       ",
-    "     xx",
-    "    x  ",
-    "   x   ",
-    "  x    ",
-    "xxxxxxx"
-]
 
-x_count = 0
-y_count = 0
+class LayoutBuilder:
+    def __init__(self):
+        self.layout = [
+            "       ",
+            "       ",
+            "     xx",
+            "    x  ",
+            "   x   ",
+            "  x    ",
+            "xxxxxxx"
+        ]
+        self.segment_radius = 1
+        self.segments = []
 
-def sample_func(point):
-    global x_count, y_count
-
-    c = img[y_count][x_count]
-
-    x_count += 1
-
-    if x_count > 6:
+    def __build_polyline_set(self):
         x_count = 0
-        y_count += 1
+        y_count = 0
 
-    return 1 if c == "x" else 0
+        def analyze_samples(point):
+            nonlocal y_count, x_count
 
-l = 0
-b = 0
-r = WIDTH
-t = HEIGHT
+            c = self.layout[y_count][x_count]
 
-x = 7
-y = 7
-th = .5
+            x_count += 1
 
-pl_set = march_hard(BB(l, b, r, t), x, y, th, sample_func)
+            if x_count >= x_samples_size:
+                x_count = 0
+                y_count += 1
+
+            return 1 if c == "x" else 0
+
+        left = 0
+        bottom = 0
+        right = WIDTH
+        top = HEIGHT
+
+        error_threshold = .5
+
+        bounding_box = BB(left, bottom, right, top)
+
+        y_samples_size = len(self.layout)
+        x_samples_size = len(self.layout[0])
+
+        pl_set = march_hard(
+            bounding_box,
+            x_samples_size,
+            y_samples_size,
+            error_threshold,
+            analyze_samples
+        )
+
+        return pl_set
+
+    def add_segments_to_space(self, space):
+        pl_set = self.__build_polyline_set()
+        bdy = space.static_body
+
+        for pl in pl_set:
+            for i, p in enumerate(pl[:-1]):
+                a = p
+                b = pl[i + 1]
+                a = (int(round(a[0], 0)), int(round(a[1], 0)))
+                b = (int(round(b[0], 0)), int(round(b[1], 0)))
+                r = self.segment_radius
+                s = Segment(bdy, a, b, r)
+
+                space.add(s)
+                self.segments.append(s)
+
+        return True
+
+    def draw(self):
+        for segment in self.segments:
+            x1, y1 = segment.a
+            x2, _ = segment.b
+            w = x2 - x1
+            h = segment.radius
+            c = pyxel.COLOR_RED
+            pyxel.rect(x1, y1, w, h, c)
+
+        return True
+
 
 class Bullet:
     def __init__(self, body, shape, tick):
@@ -222,53 +269,8 @@ class Game:
 
         x, y = WIDTH, HEIGHT
 
-        self.platforms = []
-
-        bdy = self.space.static_body
-
-        for pl in pl_set:
-            for i, p in enumerate(pl[:-1]):
-                a = p
-                b = pl[i + 1]
-                r = 1
-                s = Segment(bdy, a, b, r)
-                self.space.add(s)
-                self.platforms.append(s)
-
-        # # Crate the ground
-        # ground = self.space.static_body
-        # ground_shape = Segment(ground, (0, y), (x/2, y), self.GROUND_RADIUS)
-        # self.space.add(ground_shape)
-
-        # self.ground = ground
-
-        # self.platforms = []
-
-        # segment = Segment(
-        #     self.space.static_body,
-        #     (0, HEIGHT - self.GROUND_RADIUS),
-        #     (WIDTH, HEIGHT - self.GROUND_RADIUS),
-        #     self.GROUND_RADIUS
-        # )
-        # self.space.add(segment)
-        # self.platforms.append(
-        #     segment
-        # )
-
-        # for poly_line in pl_set:
-        #     for i in range(len(poly_line) - 1):
-        #         a = poly_line[i]
-        #         b = poly_line[i + 1]
-        #         a = Vec2d(a[0], HEIGHT - round(a[1], 0))
-        #         b = Vec2d(b[0], HEIGHT - round(b[1], 0))
-        #         segment = Segment(
-        #             self.space.static_body,
-        #             a,
-        #             b,
-        #             self.GROUND_RADIUS
-        #         )
-        #         self.platforms.append(segment)
-        #         self.space.add(segment)
+        self.layout_builder = LayoutBuilder()
+        self.layout_builder.add_segments_to_space(self.space)
 
     def update(self):
         dt = 1 / self.FPS
@@ -282,13 +284,8 @@ class Game:
     def draw(self):
         pyxel.cls(pyxel.COLOR_WHITE)
 
-        for platform in self.platforms:
-            x1, y1 = platform.a
-            x2, _ = platform.b
-            w = x2 - x1
-            h = platform.radius
-            c = pyxel.COLOR_RED
-            pyxel.rect(x1, y1, w, h, c)
+        self.layout_builder.draw()
+
 
         # shift = self.camera_pos
         # shift = (0, 0)
