@@ -1,5 +1,5 @@
 import pyxel
-from pymunk import Segment, BB
+from pymunk import Segment, BB, Vec2d
 from pymunk.autogeometry import march_hard
 from constants import WIDTH, HEIGHT
 
@@ -7,13 +7,18 @@ from constants import WIDTH, HEIGHT
 class LayoutBuilder:
     def __init__(self):
         self.layout = [
-            "       ",
-            "       ",
-            " x   xx",
-            "       ",
-            "   x   ",
-            " x     ",
-            "xxxxxxx"
+            "                                                                ",
+            "xxxxxxxx                                                        ",
+            "                                xxxxxxxxxxxxxxxxxxx             ",
+            "                                                                ",
+            "                                                xxxxxxxxxxxxxx  ",
+            "xxxxxxxxxxxxxxx                                                 ",
+            "                                                                ",
+            "                                                                ",
+            "                  xxxxxxxxxxxxxxxxxxxxxxxx                      ",
+            "                                                                ",
+            "                                                                ",
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         ]
         self.segment_radius = 1
         self.segments = []
@@ -37,7 +42,7 @@ class LayoutBuilder:
 
         left = 0
         bottom = 0
-        right = WIDTH
+        right = 3 * WIDTH
         top = HEIGHT
 
         error_threshold = .5
@@ -79,7 +84,7 @@ class LayoutBuilder:
         for segment in self.segments:
             bounding_box = segment.bb
             left, bottom, right, top = bounding_box
-            position = left, bottom
+            position = Vec2d(left, bottom) - shift
             width = right - left
             height = top - bottom
             color = pyxel.COLOR_RED

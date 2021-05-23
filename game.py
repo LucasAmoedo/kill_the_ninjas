@@ -3,13 +3,12 @@ from pymunk import Space, Vec2d
 from constants import WIDTH, HEIGHT
 from layout_builder import LayoutBuilder
 from player import Player
+from ninja import Ninja
 
 
 class Game:
     FPS = 30
     GRAVITY = Vec2d(0, 50)
-    GROUND_RADIUS = 3
-    SCREEN = Vec2d(WIDTH, HEIGHT)
 
     def __init__(self):
         self.space = Space()
@@ -21,6 +20,9 @@ class Game:
 
         self.layout_builder = LayoutBuilder()
         self.layout_builder.add_segments_to_space(self.space)
+
+        self.ninja = Ninja()
+        self.ninja.enter_space(self.space)
 
     def update(self):
         dt = 1 / self.FPS
@@ -35,10 +37,10 @@ class Game:
         pyxel.cls(pyxel.COLOR_WHITE)
 
         shift = self.camera_pos
-        shift = Vec2d(0, 0)
 
-        self.player.draw(shift)
         self.layout_builder.draw(shift)
+        self.player.draw(shift)
+        self.ninja.draw(shift)
 
     def run(self):
         pyxel.init(WIDTH, HEIGHT, fps=self.FPS)
