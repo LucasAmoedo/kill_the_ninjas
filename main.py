@@ -1,10 +1,47 @@
 import pyxel
 from pymunk import Space, Body, Circle, Vec2d, Segment, BB
+from pymunk.autogeometry import march_hard
 
 
 WIDTH = 256
 HEIGHT = 200
 
+img = [
+    "       ",
+    "       ",
+    "     xx",
+    "    x  ",
+    "   x   ",
+    "  x    ",
+    "xxxxxxx"
+]
+
+x_count = 0
+y_count = 0
+
+def sample_func(point):
+    global x_count, y_count
+
+    c = img[y_count][x_count]
+
+    x_count += 1
+
+    if x_count > 6:
+        x_count = 0
+        y_count += 1
+
+    return 1 if c == "x" else 0
+
+l = 0
+b = 0
+r = WIDTH
+t = HEIGHT
+
+x = 7
+y = 7
+th = .5
+
+pl_set = march_hard(BB(l, b, r, t), x, y, th, sample_func)
 
 class Bullet:
     def __init__(self, body, shape, tick):
@@ -178,48 +215,108 @@ class Game:
     def __init__(self):
         self.space = Space()
         self.space.gravity = self.GRAVITY
-        self.camera_pos = Vec2d(0, 0)
+        # self.camera_pos = Vec2d(0, 0)
 
-        self.player = Player()
-        self.player.enter_space(self.space)
+        # self.player = Player()
+        # self.player.enter_space(self.space)
 
         x, y = WIDTH, HEIGHT
 
-        # Crate the ground
-        ground = self.space.static_body
-        ground_shape = Segment(ground, (0, y), (x/2, y), self.GROUND_RADIUS)
-        self.space.add(ground_shape)
+        self.platforms = []
 
-        self.ground = ground
+        bdy = self.space.static_body
+
+        for pl in pl_set:
+            for i, p in enumerate(pl[:-1]):
+                a = p
+                b = pl[i + 1]
+                r = 1
+                s = Segment(bdy, a, b, r)
+                self.space.add(s)
+                self.platforms.append(s)
+
+        # # Crate the ground
+        # ground = self.space.static_body
+        # ground_shape = Segment(ground, (0, y), (x/2, y), self.GROUND_RADIUS)
+        # self.space.add(ground_shape)
+
+        # self.ground = ground
+
+        # self.platforms = []
+
+        # segment = Segment(
+        #     self.space.static_body,
+        #     (0, HEIGHT - self.GROUND_RADIUS),
+        #     (WIDTH, HEIGHT - self.GROUND_RADIUS),
+        #     self.GROUND_RADIUS
+        # )
+        # self.space.add(segment)
+        # self.platforms.append(
+        #     segment
+        # )
+
+        # for poly_line in pl_set:
+        #     for i in range(len(poly_line) - 1):
+        #         a = poly_line[i]
+        #         b = poly_line[i + 1]
+        #         a = Vec2d(a[0], HEIGHT - round(a[1], 0))
+        #         b = Vec2d(b[0], HEIGHT - round(b[1], 0))
+        #         segment = Segment(
+        #             self.space.static_body,
+        #             a,
+        #             b,
+        #             self.GROUND_RADIUS
+        #         )
+        #         self.platforms.append(segment)
+        #         self.space.add(segment)
 
     def update(self):
         dt = 1 / self.FPS
 
-        self.player.update(self.camera_pos)
+        # self.player.update(self.camera_pos)
 
-        pos = self.player.position
-        self.camera_pos = Vec2d(pos[0], 20) - Vec2d(WIDTH / 2, 0)
+        # pos = self.player.position
+        # self.camera_pos = Vec2d(pos[0], 20) - Vec2d(WIDTH / 2, 0)
         self.space.step(dt)
 
     def draw(self):
         pyxel.cls(pyxel.COLOR_WHITE)
-        shift = self.camera_pos
 
-        self.player.draw(shift)
+        for platform in self.platforms:
+            x1, y1 = platform.a
+            x2, _ = platform.b
+            w = x2 - x1
+            h = platform.radius
+            c = pyxel.COLOR_RED
+            pyxel.rect(x1, y1, w, h, c)
 
-        # Desenha o chão
-        ground = self.ground
-        ground_shape = list(ground.shapes)[0]
-        bb : BB = ground_shape.bb
-        p = Vec2d(bb.left, bb.bottom) - shift
-        w = bb.right - bb.left
-        h = self.GROUND_RADIUS
-        pyxel.rect(*p, w, h, pyxel.COLOR_GREEN)
+        # shift = self.camera_pos
+        # shift = (0, 0)
+
+        # self.player.draw(shift)
+
+        # for platform in self.platforms:
+        #     bb = platform.bb
+        #     p = Vec2d(bb.left, bb.bottom) - shift
+        #     w = bb.right - bb.left
+        #     h = self.GROUND_RADIUS
+
+        #     pyxel.rect(*p, w, h, pyxel.COLOR_GREEN)
+
+        # # Desenha o chão
+        # platforms = self.platforms
+        # for platform in platforms:
+        #     bb = platform.bb
+        #     p = Vec2d(bb.left, bb.bottom) - shift
+        #     w = bb.right - bb.left
+        #     h = self.GROUND_RADIUS
+        #     pyxel.rect(*p, w, h, pyxel.COLOR_GREEN)
+        # pyxel.rect(0, HEIGHT - 3, WIDTH, 3, pyxel.COLOR_GREEN)
 
     def run(self):
         pyxel.init(WIDTH, HEIGHT, fps=self.FPS)
 
-        pyxel.load("assets.pyxres")
+        # pyxel.load("assets.pyxres")
 
         pyxel.run(self.update, self.draw)
 
