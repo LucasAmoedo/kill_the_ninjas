@@ -9,10 +9,10 @@ class LayoutBuilder:
         self.layout = [
             "       ",
             "       ",
-            "     xx",
-            "    x  ",
+            " x   xx",
+            "       ",
             "   x   ",
-            "  x    ",
+            " x     ",
             "xxxxxxx"
         ]
         self.segment_radius = 1
@@ -59,15 +59,15 @@ class LayoutBuilder:
 
     def add_segments_to_space(self, space):
         pl_set = self.__build_polyline_set()
-        bdy = space.static_body
 
         for pl in pl_set:
             for i, p in enumerate(pl[:-1]):
                 a = p
                 b = pl[i + 1]
-                a = (int(round(a[0], 0)), int(round(a[1], 0)))
-                b = (int(round(b[0], 0)), int(round(b[1], 0)))
+                # a = (int(round(a[0], 0)), int(round(a[1], 0)))
+                # b = (int(round(b[0], 0)), int(round(b[1], 0)))
                 r = self.segment_radius
+                bdy = space.static_body
                 s = Segment(bdy, a, b, r)
 
                 space.add(s)
@@ -77,12 +77,12 @@ class LayoutBuilder:
 
     def draw(self, shift):
         for segment in self.segments:
-            x1, y1 = segment.a
-            x2, _ = segment.b
-            w = x2 - x1
-            h = segment.radius
-            c = pyxel.COLOR_RED
-            pos = (x1, y1) - shift
-            pyxel.rect(*pos, w, h, c)
+            bounding_box = segment.bb
+            left, bottom, right, top = bounding_box
+            position = left, bottom
+            width = right - left
+            height = top - bottom
+            color = pyxel.COLOR_RED
+            pyxel.rect(*position, width, height, color)
 
         return True

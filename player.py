@@ -52,7 +52,7 @@ class Player:
             ball.velocity = (0, vy)
 
         if vy == 0.0 and pyxel.btn(pyxel.KEY_UP):
-            ball.velocity = (vx, -self.SPEED)
+            ball.velocity = (vx, -2 * self.SPEED)
 
     def shoot(self):
         if pyxel.btnp(pyxel.KEY_SPACE):

@@ -35,6 +35,7 @@ class Game:
         pyxel.cls(pyxel.COLOR_WHITE)
 
         shift = self.camera_pos
+        shift = Vec2d(0, 0)
 
         self.player.draw(shift)
         self.layout_builder.draw(shift)
