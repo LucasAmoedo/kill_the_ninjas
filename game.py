@@ -28,6 +28,7 @@ class Game:
         dt = 1 / self.FPS
 
         self.player.update(self.camera_pos)
+        self.ninja.update(self.player.position)
 
         pos = self.player.position
         self.camera_pos = Vec2d(pos[0], 20) - Vec2d(WIDTH / 2, 0)
@@ -37,6 +38,7 @@ class Game:
         pyxel.cls(pyxel.COLOR_WHITE)
 
         shift = self.camera_pos
+        shift = Vec2d(0, 0)
 
         self.layout_builder.draw(shift)
         self.player.draw(shift)

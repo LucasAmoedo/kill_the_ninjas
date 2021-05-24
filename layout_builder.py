@@ -8,14 +8,14 @@ class LayoutBuilder:
     def __init__(self):
         self.layout = [
             "                                                                ",
-            "xxxxxxxx                                                        ",
-            "                                xxxxxxxxxxxxxxxxxxx             ",
-            "                                                                ",
-            "                                                xxxxxxxxxxxxxx  ",
-            "xxxxxxxxxxxxxxx                                                 ",
             "                                                                ",
             "                                                                ",
-            "                  xxxxxxxxxxxxxxxxxxxxxxxx                      ",
+            "                                                                ",
+            "                                                                ",
+            "                                                                ",
+            "                                                                ",
+            "                                                                ",
+            "                                                                ",
             "                                                                ",
             "                                                                ",
             "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -69,11 +69,13 @@ class LayoutBuilder:
             for i, p in enumerate(pl[:-1]):
                 a = p
                 b = pl[i + 1]
-                # a = (int(round(a[0], 0)), int(round(a[1], 0)))
-                # b = (int(round(b[0], 0)), int(round(b[1], 0)))
+                a = (int(round(a[0], 0)), int(round(a[1], 0)))
+                b = (int(round(b[0], 0)), int(round(b[1], 0)))
                 r = self.segment_radius
+
                 bdy = space.static_body
                 s = Segment(bdy, a, b, r)
+                s.friction = 10
 
                 space.add(s)
                 self.segments.append(s)

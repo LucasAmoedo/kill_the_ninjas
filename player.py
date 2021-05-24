@@ -15,7 +15,7 @@ class Player:
     def __init__(self):
         ball = Body(1.0, 1.0)
         ball_shape = Circle(ball, self.BALL_RADIUS)
-        ball.position = (0, HEIGHT - self.BALL_RADIUS)
+        ball.position = (0, HEIGHT - 10)
 
         self.orientation = self.ORIENTATION_RIGHT
 
