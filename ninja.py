@@ -6,7 +6,7 @@ from constants import HEIGHT
 class Ninja:
     BALL_RADIUS = 8
     IMAGE_SIZE = BALL_RADIUS * 2
-    SPEED = 20
+    SPEED = 30
     VISION_DISTANCE = 100
 
     def __init__(self):
@@ -52,17 +52,25 @@ class Ninja:
     def update(self, player_position):
         vx, vy = self.body.velocity
         self_position = self.body.position
+        _, sy = self_position
         player_distance = self_position - player_position
+        _, py = player_position
 
         if self.can_see_player(player_distance):
             x, y = player_distance
 
             if x >= 0:
                 tx = vx - self.SPEED
-                self.body.velocity = (max(tx, -self.SPEED), vy)
+                tx = max(tx, -self.SPEED)
+                self.body.velocity = (tx, vy)
             else:
                 t_x = vx + self.SPEED
-                self.body.velocity = (min(self.SPEED, t_x), vy)
+                tx = min(self.SPEED, t_x)
+                self.body.velocity = (tx, vy)
+
+            if vy == 0.0 and abs(py-sy) >= 3:
+                self.body.velocity = (tx, -2 * self.SPEED)
+
         else:
             self.body.velocity = (0, vy)
 
