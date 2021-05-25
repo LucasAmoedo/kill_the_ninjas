@@ -1,9 +1,14 @@
 import pyxel
 from pymunk import Space, Vec2d
-from constants import WIDTH, HEIGHT
 from layout_builder import LayoutBuilder
 from player import Player
 from ninja import Ninja
+from constants import (
+    WIDTH,
+    HEIGHT,
+    BULLET_COLLISION_TYPE,
+    NINJA_COLLISION_TYPE
+)
 
 
 class Game:
@@ -23,6 +28,20 @@ class Game:
 
         self.ninja = Ninja()
         self.ninja.enter_space(self.space)
+
+        bullet_ninja_collision_handler = self.space.add_collision_handler(
+            BULLET_COLLISION_TYPE,
+            NINJA_COLLISION_TYPE
+        )
+
+        def handle_bullet_ninja_collision(arbiter, space, data):
+            _, ninja_shape = arbiter.shapes
+            ninja = ninja_shape.body.reference
+            ninja.hit_points -= 1
+
+            return True
+
+        bullet_ninja_collision_handler.begin = handle_bullet_ninja_collision
 
     def update(self):
         dt = 1 / self.FPS

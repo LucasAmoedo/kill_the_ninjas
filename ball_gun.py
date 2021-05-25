@@ -20,6 +20,7 @@ class BallGun:
 
         shape.friction = 0.5
         shape.density = 0.1
+        shape.collision_type = 1
 
         body.position = position
 

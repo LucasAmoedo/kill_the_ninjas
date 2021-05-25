@@ -13,15 +13,33 @@ class Ninja:
         body = Body(50, 1)
         shape = Circle(body, self.BALL_RADIUS)
         shape.friction = 0.5
+        shape.collision_type = 2
+
+        body.reference = self
 
         self.body = body
         self.shape = shape
+
+        self.hit_points = 3
 
     def enter_space(self, space):
         space.add(self.body, self.shape)
         self.body.position = (140, HEIGHT - 10)
 
+        self.space = space
+
+        return True
+
+    def leave_space(self):
+        self.space.remove(self.body, self.shape)
+        self.space = None
+
+        return True
+
     def draw(self, shift):
+        if not self.space:
+            return
+
         shape = self.shape
 
         bb = shape.bb
@@ -50,6 +68,12 @@ class Ninja:
         )
 
     def update(self, player_position):
+        if self.hit_points == 0:
+            if self.space:
+                self.leave_space()
+
+            return
+
         vx, vy = self.body.velocity
         self_position = self.body.position
         _, sy = self_position
