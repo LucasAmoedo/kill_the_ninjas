@@ -74,6 +74,29 @@ class Game:
         for ninja in self.ninjas:
             ninja.draw(shift)
 
+        for i in range(self.player.hit_points):
+            heart_size = 16
+            offset = 5
+            x = i * heart_size + i * offset
+            y = 0
+            heart_position = (x, y)
+
+            image_index = 0
+            image_u = 0
+            image_v = 2 * heart_size
+            image_w = heart_size
+            image_h = heart_size
+
+            pyxel.blt(
+                *heart_position,
+                image_index,
+                image_u,
+                image_v,
+                image_w,
+                image_h,
+                pyxel.COLOR_YELLOW
+            )
+
     def run(self):
         pyxel.init(WIDTH, HEIGHT, fps=self.FPS)
         pyxel.load("assets.pyxres")

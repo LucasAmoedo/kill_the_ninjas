@@ -11,6 +11,7 @@ class Player:
     ORIENTATION_LEFT = 1
     ORIENTATION_RIGHT = -1
     IMAGE_SIZE = BALL_RADIUS * 2
+    TOTAL_HIT_POINTS = 3
 
     def __init__(self):
         ball = Body(1.0, 1.0)
@@ -23,6 +24,8 @@ class Player:
         self.shape = ball_shape
 
         self.ball_gun = BallGun()
+
+        self.hit_points = self.TOTAL_HIT_POINTS
 
     def enter_space(self, space):
         space.add(self.body, self.shape)
