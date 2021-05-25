@@ -8,7 +8,7 @@ class Ninja:
     BALL_RADIUS = 8
     IMAGE_SIZE = BALL_RADIUS * 2
     SPEED = 30
-    VISION_DISTANCE = 100
+    VISION_DISTANCE = Vec2d(100, 50)
     TOTAL_HIT_POINTS = 3
 
     def __init__(self):
@@ -27,8 +27,7 @@ class Ninja:
     def enter_space(self, space):
         space.add(self.body, self.shape)
         x = random.randint(140, 390)
-        print(x)
-        y = HEIGHT - 18
+        y = random.randint(55, HEIGHT - 18)
         self.body.position = x, y
 
         self.space = space
@@ -74,7 +73,6 @@ class Ninja:
 
     def update(self, player_position):
         px, py = self.body.position
-        print(px, py)
 
         if py > HEIGHT + 20:
             self.hit_points = 0
@@ -115,5 +113,6 @@ class Ninja:
         if self.hit_points < self.TOTAL_HIT_POINTS:
             return True
 
-        dx, _ = distance
-        return abs(dx) <= self.VISION_DISTANCE
+        dx, dy = distance
+        vx, vy = self.VISION_DISTANCE
+        return abs(dx) <= vx and abs(dy) <= vy

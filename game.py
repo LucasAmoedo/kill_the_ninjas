@@ -9,7 +9,7 @@ from collision_handler import CollisionHandler
 
 class Game:
     FPS = 30
-    NINJAS_NUMBER = 1
+    NINJAS_NUMBER = 32
     GRAVITY = Vec2d(0, 50)
 
     def __init__(self):
