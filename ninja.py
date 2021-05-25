@@ -2,6 +2,7 @@ import pyxel
 import random
 from pymunk import Body, Circle, Vec2d
 from constants import HEIGHT, NINJA_COLLISION_TYPE
+from particles import ExplosionParticles
 
 
 class Ninja:
@@ -24,6 +25,8 @@ class Ninja:
 
         self.hit_points = self.TOTAL_HIT_POINTS
 
+        self.particles = ExplosionParticles()
+
     def enter_space(self, space):
         space.add(self.body, self.shape)
         x = random.randint(140, 390)
@@ -31,6 +34,8 @@ class Ninja:
         self.body.position = x, y
 
         self.space = space
+
+        self.particles.enter_space(space)
 
         return True
 
@@ -41,6 +46,8 @@ class Ninja:
         return True
 
     def draw(self, shift):
+        self.particles.draw(self.body.position, shift)
+
         if self.space is None:
             return
 
@@ -72,12 +79,15 @@ class Ninja:
         )
 
     def update(self, player_position):
+        self.particles.update()
         px, py = self.body.position
 
         if py > HEIGHT + 20:
             self.hit_points = 0
 
         if self.hit_points <= 0:
+            if not self.particles.emitting and not self.particles.done:
+                self.particles.emmit(self.body.position, self.body.velocity)
             if self.space:
                 self.leave_space()
 

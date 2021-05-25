@@ -65,7 +65,11 @@ class Game:
 
         for ninja in self.ninjas.copy():
             ninja.update(self.player.position)
-            if ninja.hit_points <= 0:
+            if (
+                ninja.hit_points <= 0 and
+                not ninja.particles.emitting and
+                ninja.particles.done
+            ):
                 self.ninjas.remove(ninja)
 
         pos = self.player.position
