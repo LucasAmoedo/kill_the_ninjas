@@ -22,6 +22,7 @@ class Player:
         body.reference = self
 
         shape.collision_type = PLAYER_COLLISION_TYPE
+        shape.elasticity = 0.0
 
         self.orientation = self.ORIENTATION_RIGHT
 
@@ -54,8 +55,10 @@ class Player:
             body.position = self.INITIAL_POSITION
 
         if pyxel.btn(pyxel.KEY_LEFT):
+            self.orientation = self.ORIENTATION_LEFT
             body.velocity = (-self.SPEED, vy)
         elif pyxel.btn(pyxel.KEY_RIGHT):
+            self.orientation = self.ORIENTATION_RIGHT
             body.velocity = (self.SPEED, vy)
         else:
             body.velocity = (0, vy)
@@ -81,11 +84,6 @@ class Player:
         x, y, _, _ = bb
 
         player_position = Vec2d(x, y) - shift
-
-        if self.body.velocity.x > 0:
-            self.orientation = self.ORIENTATION_RIGHT
-        elif self.body.velocity.x < 0:
-            self.orientation = self.ORIENTATION_LEFT
 
         image_page_index = 0
         image_width = self.orientation * self.IMAGE_SIZE
