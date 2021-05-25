@@ -33,16 +33,26 @@ class Game:
         collision_handler = CollisionHandler(self.space)
         collision_handler.add_handlers_to_space()
 
+    @property
+    def game_over(self):
+        return self.player.hit_points <= 0
+
+    @property
+    def victory(self):
+        return not self.ninjas
+
     def update(self):
-        if self.player.hit_points <= 0:
+        if self.game_over or self.victory:
             return
 
         dt = 1 / self.FPS
 
         self.player.update(self.camera_pos)
 
-        for ninja in self.ninjas:
+        for ninja in self.ninjas.copy():
             ninja.update(self.player.position)
+            if ninja.hit_points <= 0:
+                self.ninjas.remove(ninja)
 
         pos = self.player.position
         self.camera_pos = Vec2d(pos[0], 20) - Vec2d(WIDTH / 2, 0)
@@ -50,6 +60,14 @@ class Game:
 
     def draw(self):
         pyxel.cls(pyxel.COLOR_WHITE)
+
+        if self.game_over:
+            game_over_text = "Game Over"
+            pyxel.text(WIDTH / 2 - len(game_over_text), HEIGHT /2, game_over_text, pyxel.COLOR_BLACK)
+
+        if self.victory:
+            victory_text = "Congratulations!"
+            pyxel.text(WIDTH / 2 - len(victory_text), HEIGHT /2, victory_text, pyxel.COLOR_BLACK)
 
         shift = self.camera_pos
 
