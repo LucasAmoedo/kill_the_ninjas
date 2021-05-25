@@ -114,6 +114,17 @@ class Game:
     def draw(self):
         pyxel.cls(pyxel.COLOR_WHITE)
 
+        shift = self.camera_pos
+
+        self.layout_builder.draw(shift)
+        self.player.draw(shift)
+
+        for ninja in self.ninjas:
+            ninja.draw(shift)
+
+        self.__draw_hearts()
+        self.__draw_ninja_counter()
+
         if self.game_over:
             game_over_text = "Game Over"
             pyxel.text(
@@ -131,17 +142,6 @@ class Game:
                 victory_text,
                 pyxel.COLOR_BLACK
             )
-
-        shift = self.camera_pos
-
-        self.layout_builder.draw(shift)
-        self.player.draw(shift)
-
-        for ninja in self.ninjas:
-            ninja.draw(shift)
-
-        self.__draw_hearts()
-        self.__draw_ninja_counter()
 
     def run(self):
         pyxel.init(WIDTH, HEIGHT, fps=self.FPS)

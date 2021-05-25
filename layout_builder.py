@@ -78,7 +78,7 @@ class LayoutBuilder:
             position = Vec2d(left, bottom) - shift
             width = right - left
             height = top - bottom
-            color = pyxel.COLOR_RED
+            color = pyxel.COLOR_GREEN
             pyxel.rect(*position, width, height, color)
 
         return True

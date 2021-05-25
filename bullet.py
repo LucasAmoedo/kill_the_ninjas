@@ -3,3 +3,4 @@ class Bullet:
         self.body = body
         self.shape = shape
         self.tick = tick
+        self.body.reference = self
