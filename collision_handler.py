@@ -28,7 +28,7 @@ class CollisionHandler:
 
             return True
 
-        def handle_bullet_platform_collision(arbiter, space, data):
+        def handle_bullet_platform_col(arbiter, space, data):
             bullet_shape, _ = arbiter.shapes
             bullet_shape.body.reference.tick = 30
             return True
@@ -55,7 +55,7 @@ class CollisionHandler:
             PLATFORM_COLLISION_TYPE
         )
 
-        bullet_platform_collision_handler.begin = handle_bullet_platform_collision
+        bullet_platform_collision_handler.begin = handle_bullet_platform_col
 
         player_bullet_collision_handler = self.space.add_collision_handler(
             PLAYER_COLLISION_TYPE,

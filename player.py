@@ -33,6 +33,8 @@ class Player:
 
         self.hit_points = self.TOTAL_HIT_POINTS
 
+        self.jumping = False
+
     def enter_space(self, space):
         space.add(self.body, self.shape)
         self.space = space
@@ -50,11 +52,25 @@ class Player:
 
         sx, sy = camera_pos
 
+        if vy == 0.0:
+            self.jumping = False
+
         if py > HEIGHT + sy:
             self.hit_points -= 1
             body.position = self.INITIAL_POSITION
 
-        if pyxel.btn(pyxel.KEY_LEFT):
+        if not self.jumping and pyxel.btn(pyxel.KEY_UP):
+            body.velocity = (vx, -1.8 * self.SPEED)
+            self.jumping = True
+
+            # if pyxel.btn(pyxel.KEY_LEFT) and vx == 0.0:
+            #     self.orientation = self.ORIENTATION_LEFT
+            #     body.velocity = (-self.SPEED, vy)
+            # elif pyxel.btn(pyxel.KEY_RIGHT) and vx == 0.0:
+            #     self.orientation = self.ORIENTATION_RIGHT
+            #     body.velocity = (self.SPEED, vy)
+
+        elif pyxel.btn(pyxel.KEY_LEFT):
             self.orientation = self.ORIENTATION_LEFT
             body.velocity = (-self.SPEED, vy)
         elif pyxel.btn(pyxel.KEY_RIGHT):
@@ -62,9 +78,6 @@ class Player:
             body.velocity = (self.SPEED, vy)
         else:
             body.velocity = (0, vy)
-
-        if vy == 0.0 and pyxel.btn(pyxel.KEY_UP):
-            body.velocity = (vx, -1.5 * self.SPEED)
 
     def shoot(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
@@ -97,7 +110,7 @@ class Player:
             self.body.position.x // animation_speed
         ) % image_quantity
 
-        image_u = self.IMAGE_SIZE * image_index
+        image_u = 0 if self.jumping else self.IMAGE_SIZE * image_index
         image_position = (image_u, self.IMAGE_SIZE)
 
         pyxel.blt(
