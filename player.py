@@ -1,7 +1,7 @@
 import pyxel
 from pymunk import Body, Circle, Vec2d
 
-from constants import HEIGHT
+from constants import HEIGHT, PLAYER_COLLISION_TYPE
 from ball_gun import BallGun
 
 
@@ -11,17 +11,19 @@ class Player:
     ORIENTATION_LEFT = 1
     ORIENTATION_RIGHT = -1
     IMAGE_SIZE = BALL_RADIUS * 2
-    TOTAL_HIT_POINTS = 3
+    TOTAL_HIT_POINTS = 4
 
     def __init__(self):
-        ball = Body(1.0, 1.0)
-        ball_shape = Circle(ball, self.BALL_RADIUS)
-        ball.position = (0, HEIGHT - 10)
+        body = Body(1.0, 1.0)
+        shape = Circle(body, self.BALL_RADIUS)
+
+        body.position = (0, HEIGHT - 10)
+        shape.collision_type = PLAYER_COLLISION_TYPE
 
         self.orientation = self.ORIENTATION_RIGHT
 
-        self.body = ball
-        self.shape = ball_shape
+        self.body = body
+        self.shape = shape
 
         self.ball_gun = BallGun()
 
@@ -38,24 +40,24 @@ class Player:
         return self.body.position
 
     def move(self, camera_pos):
-        ball = self.body
-        vx, vy = ball.velocity
-        px, py = ball.position
+        body = self.body
+        vx, vy = body.velocity
+        px, py = body.position
 
         sx, sy = camera_pos
 
         if py > HEIGHT + sy:
-            ball.position = px, 0
+            body.position = px, 0
 
         if pyxel.btn(pyxel.KEY_LEFT):
-            ball.velocity = (-self.SPEED, vy)
+            body.velocity = (-self.SPEED, vy)
         elif pyxel.btn(pyxel.KEY_RIGHT):
-            ball.velocity = (self.SPEED, vy)
+            body.velocity = (self.SPEED, vy)
         else:
-            ball.velocity = (0, vy)
+            body.velocity = (0, vy)
 
         if vy == 0.0 and pyxel.btn(pyxel.KEY_UP):
-            ball.velocity = (vx, -self.SPEED)
+            body.velocity = (vx, -self.SPEED)
 
     def shoot(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
@@ -68,9 +70,9 @@ class Player:
         self.shoot()
 
     def draw(self, shift):
-        ball_shape = self.shape
+        shape = self.shape
 
-        bb = ball_shape.bb
+        bb = shape.bb
 
         x, y, _, _ = bb
 

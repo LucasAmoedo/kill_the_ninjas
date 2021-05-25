@@ -7,7 +7,8 @@ from constants import (
     WIDTH,
     HEIGHT,
     BULLET_COLLISION_TYPE,
-    NINJA_COLLISION_TYPE
+    NINJA_COLLISION_TYPE,
+    PLAYER_COLLISION_TYPE
 )
 
 
@@ -34,7 +35,6 @@ class Game:
             ninja.enter_space(self.space)
             self.ninjas.append(ninja)
 
-
         bullet_ninja_collision_handler = self.space.add_collision_handler(
             BULLET_COLLISION_TYPE,
             NINJA_COLLISION_TYPE
@@ -49,9 +49,23 @@ class Game:
 
         bullet_ninja_collision_handler.begin = handle_bullet_ninja_collision
 
-    def update(self):
-        dt = 1 / self.FPS
+        player_ninja_collision_handler = self.space.add_collision_handler(
+            NINJA_COLLISION_TYPE,
+            PLAYER_COLLISION_TYPE
+        )
 
+        def handle_player_ninja_collision(arbiter, space, data):
+            self.player.hit_points -= 1
+
+            return True
+
+        player_ninja_collision_handler.begin = handle_player_ninja_collision
+
+    def update(self):
+        if self.player.hit_points <= 0:
+            return
+
+        dt = 1 / self.FPS
 
         self.player.update(self.camera_pos)
 
