@@ -12,12 +12,15 @@ class Player:
     ORIENTATION_RIGHT = -1
     IMAGE_SIZE = BALL_RADIUS * 2
     TOTAL_HIT_POINTS = 4
+    INITIAL_POSITION = (0, HEIGHT - 10)
 
     def __init__(self):
         body = Body(1.0, 1.0)
         shape = Circle(body, self.BALL_RADIUS)
 
-        body.position = (0, HEIGHT - 10)
+        body.position = self.INITIAL_POSITION
+        body.reference = self
+
         shape.collision_type = PLAYER_COLLISION_TYPE
 
         self.orientation = self.ORIENTATION_RIGHT
@@ -47,7 +50,8 @@ class Player:
         sx, sy = camera_pos
 
         if py > HEIGHT + sy:
-            body.position = px, 0
+            self.hit_points -= 1
+            body.position = self.INITIAL_POSITION
 
         if pyxel.btn(pyxel.KEY_LEFT):
             body.velocity = (-self.SPEED, vy)
@@ -57,7 +61,7 @@ class Player:
             body.velocity = (0, vy)
 
         if vy == 0.0 and pyxel.btn(pyxel.KEY_UP):
-            body.velocity = (vx, -self.SPEED)
+            body.velocity = (vx, -1.5 * self.SPEED)
 
     def shoot(self):
         if pyxel.btnp(pyxel.KEY_SPACE):

@@ -1,25 +1,13 @@
 import pyxel
 from pymunk import Segment, BB, Vec2d
 from pymunk.autogeometry import march_hard
-from constants import WIDTH, HEIGHT
+from constants import WIDTH, HEIGHT, PLATFORM_COLLISION_TYPE
+from layout import LAYOUT
 
 
 class LayoutBuilder:
     def __init__(self):
-        self.layout = [
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "                                                                ",
-            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        ]
+        self.layout = LAYOUT
         self.segment_radius = 1
         self.segments = []
 
@@ -76,6 +64,7 @@ class LayoutBuilder:
                 bdy = space.static_body
                 s = Segment(bdy, a, b, r)
                 s.friction = 10
+                s.collision_type = PLATFORM_COLLISION_TYPE
 
                 space.add(s)
                 self.segments.append(s)

@@ -3,13 +3,8 @@ from pymunk import Space, Vec2d
 from layout_builder import LayoutBuilder
 from player import Player
 from ninja import Ninja
-from constants import (
-    WIDTH,
-    HEIGHT,
-    BULLET_COLLISION_TYPE,
-    NINJA_COLLISION_TYPE,
-    PLAYER_COLLISION_TYPE
-)
+from constants import WIDTH, HEIGHT
+from collision_handler import CollisionHandler
 
 
 class Game:
@@ -35,31 +30,8 @@ class Game:
             ninja.enter_space(self.space)
             self.ninjas.append(ninja)
 
-        bullet_ninja_collision_handler = self.space.add_collision_handler(
-            BULLET_COLLISION_TYPE,
-            NINJA_COLLISION_TYPE
-        )
-
-        def handle_bullet_ninja_collision(arbiter, space, data):
-            _, ninja_shape = arbiter.shapes
-            ninja = ninja_shape.body.reference
-            ninja.hit_points -= 1
-
-            return True
-
-        bullet_ninja_collision_handler.begin = handle_bullet_ninja_collision
-
-        player_ninja_collision_handler = self.space.add_collision_handler(
-            NINJA_COLLISION_TYPE,
-            PLAYER_COLLISION_TYPE
-        )
-
-        def handle_player_ninja_collision(arbiter, space, data):
-            self.player.hit_points -= 1
-
-            return True
-
-        player_ninja_collision_handler.begin = handle_player_ninja_collision
+        collision_handler = CollisionHandler(self.space)
+        collision_handler.add_handlers_to_space()
 
     def update(self):
         if self.player.hit_points <= 0:
@@ -80,7 +52,6 @@ class Game:
         pyxel.cls(pyxel.COLOR_WHITE)
 
         shift = self.camera_pos
-        shift = Vec2d(0, 0)
 
         self.layout_builder.draw(shift)
         self.player.draw(shift)
