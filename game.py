@@ -5,14 +5,16 @@ from player import Player
 from ninja import Ninja
 from constants import WIDTH, HEIGHT
 from collision_handler import CollisionHandler
+from menu import Menu
 
 
 class Game:
     FPS = 30
-    NINJAS_NUMBER = 32
     GRAVITY = Vec2d(0, 100)
 
     def __init__(self):
+        self.menu = Menu()
+
         self.space = Space()
         self.space.gravity = self.GRAVITY
         self.camera_pos = Vec2d(0, 0)
@@ -24,11 +26,7 @@ class Game:
         self.layout_builder.add_segments_to_space(self.space)
 
         self.ninjas = []
-
-        for _ in range(self.NINJAS_NUMBER):
-            ninja = Ninja()
-            ninja.enter_space(self.space)
-            self.ninjas.append(ninja)
+        self.ninjas_quantity = 0
 
         collision_handler = CollisionHandler(self.space)
         collision_handler.add_handlers_to_space()
@@ -39,9 +37,26 @@ class Game:
 
     @property
     def victory(self):
-        return not self.ninjas
+        return self.ninjas_quantity and not self.ninjas
+
+    def __add_ninjas(self):
+        self.ninjas_quantity = self.menu.selected_difficulty.value * 8
+
+        for _ in range(self.ninjas_quantity):
+            ninja = Ninja()
+            ninja.enter_space(self.space)
+            self.ninjas.append(ninja)
+
+        return True
+
 
     def update(self):
+        if not self.menu.done:
+            return self.menu.update()
+
+        if self.ninjas_quantity == 0:
+            self.__add_ninjas()
+
         if self.game_over or self.victory:
             return
 
@@ -102,8 +117,8 @@ class Game:
             pyxel.COLOR_YELLOW
         )
 
-        ninja_counter = self.NINJAS_NUMBER - len(self.ninjas)
-        counter_text = f"{ninja_counter}/{self.NINJAS_NUMBER}"
+        ninja_counter = self.ninjas_quantity - len(self.ninjas)
+        counter_text = f"{ninja_counter}/{self.ninjas_quantity}"
         pyxel.text(
             WIDTH - 32 - len(counter_text),
             5,
@@ -112,6 +127,9 @@ class Game:
         )
 
     def draw(self):
+        if not self.menu.done:
+            return self.menu.draw()
+
         pyxel.cls(pyxel.COLOR_WHITE)
 
         shift = self.camera_pos
