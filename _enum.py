@@ -6,4 +6,3 @@ class DifficultyOptions(Enum):
     medium = 2
     hard = 4
     crazy = 8
-

@@ -13,6 +13,7 @@ class Player:
     IMAGE_SIZE = BALL_RADIUS * 2
     TOTAL_HIT_POINTS = 4
     INITIAL_POSITION = (0, HEIGHT - 10)
+    BLINKING_TIME = 50
 
     def __init__(self):
         body = Body(1.0, 1.0)
@@ -35,6 +36,10 @@ class Player:
 
         self.jumping = False
 
+        self.blinking = False
+
+        self.ticks = 0
+
     def enter_space(self, space):
         space.add(self.body, self.shape)
         self.space = space
@@ -44,6 +49,13 @@ class Player:
     @property
     def position(self):
         return self.body.position
+
+    def blink(self):
+        if self.blinking:
+            return
+
+        self.blinking = True
+        print("blinking!")
 
     def move(self, camera_pos):
         body = self.body
@@ -89,6 +101,13 @@ class Player:
         self.move(camera_pos)
         self.shoot()
 
+        if self.blinking:
+            self.ticks += 1
+            if self.ticks >= self.BLINKING_TIME:
+                self.ticks = 0
+                self.blinking = False
+                print("Stop blinking")
+
     def draw(self, shift):
         shape = self.shape
 
@@ -113,13 +132,14 @@ class Player:
         image_u = 0 if self.jumping else self.IMAGE_SIZE * image_index
         image_position = (image_u, self.IMAGE_SIZE)
 
-        pyxel.blt(
-            *player_position,
-            image_page_index,
-            *image_position,
-            image_width,
-            image_heigth,
-            transparent_color
-        )
+        if not self.blinking or (self.blinking and self.ticks % 2 == 0):
+            pyxel.blt(
+                *player_position,
+                image_page_index,
+                *image_position,
+                image_width,
+                image_heigth,
+                transparent_color
+            )
 
         self.ball_gun.draw(shift)

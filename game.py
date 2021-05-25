@@ -49,7 +49,6 @@ class Game:
 
         return True
 
-
     def update(self):
         if not self.menu.done:
             return self.menu.update()

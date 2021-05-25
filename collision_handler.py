@@ -24,7 +24,11 @@ class CollisionHandler:
 
         def handle_player_ninja_collision(arbiter, space, data):
             _, player_shape = arbiter.shapes
-            player_shape.body.reference.hit_points -= 1
+            player = player_shape.body.reference
+
+            if not player.blinking:
+                player.hit_points -= 1
+                player.blink()
 
             return True
 

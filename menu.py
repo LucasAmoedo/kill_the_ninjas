@@ -1,5 +1,5 @@
 import pyxel
-from constants import WIDTH, HEIGHT
+from constants import WIDTH
 from _enum import DifficultyOptions
 
 
@@ -31,10 +31,8 @@ class Menu:
             pyxel.COLOR_YELLOW
         )
 
-
         for index, option in enumerate(DifficultyOptions):
             offset += 20
-            text_offset = 0
             selection_text = "> " if self.selected_difficulty == option else ""
 
             name = selection_text + option.name
@@ -46,7 +44,6 @@ class Menu:
                 pyxel.COLOR_YELLOW
             )
 
-
     def update(self):
         options = list(DifficultyOptions)
         select_index = options.index(self.selected_difficulty)
@@ -54,7 +51,10 @@ class Menu:
         if pyxel.btnp(pyxel.KEY_UP):
             select_index = max(select_index - 1, 0)
         elif pyxel.btnp(pyxel.KEY_DOWN):
-            select_index = min(select_index + 1, len(list(DifficultyOptions)) - 1)
+            select_index = min(
+                select_index + 1,
+                len(list(DifficultyOptions)) - 1
+            )
 
         self.selected_difficulty = options[select_index]
 
