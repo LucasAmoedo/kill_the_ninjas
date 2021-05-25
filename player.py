@@ -55,7 +55,6 @@ class Player:
             return
 
         self.blinking = True
-        print("blinking!")
 
     def move(self, camera_pos):
         body = self.body
@@ -74,13 +73,6 @@ class Player:
         if not self.jumping and pyxel.btn(pyxel.KEY_UP):
             body.velocity = (vx, -1.8 * self.SPEED)
             self.jumping = True
-
-            # if pyxel.btn(pyxel.KEY_LEFT) and vx == 0.0:
-            #     self.orientation = self.ORIENTATION_LEFT
-            #     body.velocity = (-self.SPEED, vy)
-            # elif pyxel.btn(pyxel.KEY_RIGHT) and vx == 0.0:
-            #     self.orientation = self.ORIENTATION_RIGHT
-            #     body.velocity = (self.SPEED, vy)
 
         elif pyxel.btn(pyxel.KEY_LEFT):
             self.orientation = self.ORIENTATION_LEFT
@@ -106,7 +98,6 @@ class Player:
             if self.ticks >= self.BLINKING_TIME:
                 self.ticks = 0
                 self.blinking = False
-                print("Stop blinking")
 
     def draw(self, shift):
         shape = self.shape
