@@ -13,6 +13,7 @@ from constants import (
 
 class Game:
     FPS = 30
+    NINJAS_NUMBER = 8
     GRAVITY = Vec2d(0, 50)
 
     def __init__(self):
@@ -26,8 +27,13 @@ class Game:
         self.layout_builder = LayoutBuilder()
         self.layout_builder.add_segments_to_space(self.space)
 
-        self.ninja = Ninja()
-        self.ninja.enter_space(self.space)
+        self.ninjas = []
+
+        for _ in range(self.NINJAS_NUMBER):
+            ninja = Ninja()
+            ninja.enter_space(self.space)
+            self.ninjas.append(ninja)
+
 
         bullet_ninja_collision_handler = self.space.add_collision_handler(
             BULLET_COLLISION_TYPE,
@@ -46,8 +52,11 @@ class Game:
     def update(self):
         dt = 1 / self.FPS
 
+
         self.player.update(self.camera_pos)
-        self.ninja.update(self.player.position)
+
+        for ninja in self.ninjas:
+            ninja.update(self.player.position)
 
         pos = self.player.position
         self.camera_pos = Vec2d(pos[0], 20) - Vec2d(WIDTH / 2, 0)
@@ -61,7 +70,9 @@ class Game:
 
         self.layout_builder.draw(shift)
         self.player.draw(shift)
-        self.ninja.draw(shift)
+
+        for ninja in self.ninjas:
+            ninja.draw(shift)
 
     def run(self):
         pyxel.init(WIDTH, HEIGHT, fps=self.FPS)

@@ -1,6 +1,11 @@
 import pyxel
+import random
 from pymunk import Body, Circle, Vec2d
-from constants import HEIGHT
+from constants import (
+    HEIGHT,
+    WIDTH,
+    NINJA_COLLISION_TYPE,
+)
 
 
 class Ninja:
@@ -8,23 +13,26 @@ class Ninja:
     IMAGE_SIZE = BALL_RADIUS * 2
     SPEED = 30
     VISION_DISTANCE = 100
+    TOTAL_HIT_POINTS = 3
 
     def __init__(self):
         body = Body(50, 1)
         shape = Circle(body, self.BALL_RADIUS)
         shape.friction = 0.5
-        shape.collision_type = 2
+        shape.collision_type = NINJA_COLLISION_TYPE
 
         body.reference = self
 
         self.body = body
         self.shape = shape
 
-        self.hit_points = 3
+        self.hit_points = self.TOTAL_HIT_POINTS
 
     def enter_space(self, space):
         space.add(self.body, self.shape)
-        self.body.position = (140, HEIGHT - 10)
+        x = random.randint(140, WIDTH - 10)
+        y = HEIGHT - 18
+        self.body.position = x, y
 
         self.space = space
 
@@ -37,7 +45,7 @@ class Ninja:
         return True
 
     def draw(self, shift):
-        if not self.space:
+        if self.space is None:
             return
 
         shape = self.shape
@@ -68,7 +76,7 @@ class Ninja:
         )
 
     def update(self, player_position):
-        if self.hit_points == 0:
+        if self.hit_points <= 0:
             if self.space:
                 self.leave_space()
 
@@ -99,5 +107,8 @@ class Ninja:
             self.body.velocity = (0, vy)
 
     def can_see_player(self, distance):
+        if self.hit_points < self.TOTAL_HIT_POINTS:
+            return True
+
         dx, _ = distance
         return abs(dx) <= self.VISION_DISTANCE

@@ -1,6 +1,7 @@
 import pyxel
 from pymunk import Body, Circle, Vec2d
 from bullet import Bullet
+from constants import BULLET_COLLISION_TYPE
 
 
 class BallGun:
@@ -20,7 +21,7 @@ class BallGun:
 
         shape.friction = 0.5
         shape.density = 0.1
-        shape.collision_type = 1
+        shape.collision_type = BULLET_COLLISION_TYPE
 
         body.position = position
 
